@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 기술 스펙 & 데이터 플로우</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            min-height: 100vh;
+            color: #2d3436;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dataflow {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dataflow h3 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2d3436;
+            font-size: 1.8em;
+        }
+        
+        .flow-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .flow-box {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            min-width: 200px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .flow-box:hover {
+            transform: scale(1.05);
+        }
+        
+        .flow-arrow {
+            font-size: 2.5em;
+            color: #2d3436;
+            font-weight: bold;
+        }
+        
+        .hardware-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .hardware-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid #00cec9;
+        }
+        
+        .hardware-card h4 {
+            color: #2d3436;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .spec-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .spec-table th,
+        .spec-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .spec-table th {
+            background: #74b9ff;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .api-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .api-endpoint {
+            background: #2d3436;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .method.post {
+            background: #00b894;
+        }
+        
+        .method.get {
+            background: #0984e3;
+        }
+        
+        .method.put {
+            background: #fdcb6e;
+            color: #2d3436;
+        }
+        
+        .kafka-topics {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .topic-card {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .topic-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: #74b9ff;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            transition: background 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: #0984e3;
+        }
+        
+        @media (max-width: 768px) {
+            .flow-container {
+                flex-direction: column;
+            }
+            
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+            
+            .hardware-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="project_visualization.html" class="back-btn">← 프로젝트 개요로 돌아가기</a>
+        
+        <div class="header">
+            <h1>🔧 기술 스펙 & 데이터 플로우</h1>
+            <p>크레스티드게코 스마트 사육장 플랫폼 상세 기술 문서</p>
+        </div>
+        
+        <div class="dataflow">
+            <h3>📊 실시간 데이터 플로우</h3>
+            <div class="flow-container">
+                <div class="flow-box">
+                    🌡️ DHT22 센서<br>
+                    <small>온도: ±0.5°C<br>습도: ±2%</small>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">
+                    📡 ESP32<br>
+                    <small>WiFi 전송<br>1초마다</small>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">
+                    ⚙️ Spring Boot<br>
+                    <small>데이터 검증<br>& 처리</small>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">
+                    📈 Kafka<br>
+                    <small>sensor.telemetry<br>토픽</small>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-box">
+                    💾 TimescaleDB<br>
+                    <small>시계열 저장<br>& 분석</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hardware-grid">
+            <div class="hardware-card">
+                <h4>🔬 센서 모듈</h4>
+                <table class="spec-table">
+                    <tr>
+                        <th>항목</th>
+                        <th>스펙</th>
+                    </tr>
+                    <tr>
+                        <td>온도 센서</td>
+                        <td>DHT22 (±0.5°C)</td>
+                    </tr>
+                    <tr>
+                        <td>습도 센서</td>
+                        <td>DHT22 (±2%)</td>
+                    </tr>
+                    <tr>
+                        <td>측정 주기</td>
+                        <td>1초</td>
+                    </tr>
+                    <tr>
+                        <td>동작 전압</td>
+                        <td>3.3V - 5V</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="hardware-card">
+                <h4>💨 미스트메이커</h4>
+                <table class="spec-table">
+                    <tr>
+                        <th>항목</th>
+                        <th>스펙</th>
+                    </tr>
+                    <tr>
+                        <td>방식</td>
+                        <td>초음파 진동판</td>
+                    </tr>
+                    <tr>
+                        <td>주파수</td>
+                        <td>1.7MHz</td>
+                    </tr>
+                    <tr>
+                        <td>분무량</td>
+                        <td>300ml/h</td>
+                    </tr>
+                    <tr>
+                        <td>제어</td>
+                        <td>릴레이 ON/OFF</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="hardware-card">
+                <h4>📡 ESP32 모듈</h4>
+                <table class="spec-table">
+                    <tr>
+                        <th>항목</th>
+                        <th>스펙</th>
+                    </tr>
+                    <tr>
+                        <td>MCU</td>
+                        <td>ESP32-WROOM-32</td>
+                    </tr>
+                    <tr>
+                        <td>WiFi</td>
+                        <td>802.11 b/g/n</td>
+                    </tr>
+                    <tr>
+                        <td>GPIO</td>
+                        <td>34개 (센서/릴레이용)</td>
+                    </tr>
+                    <tr>
+                        <td>전원</td>
+                        <td>3.3V / 500mA</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="hardware-card">
+                <h4>⚡ 전원 관리</h4>
+                <table class="spec-table">
+                    <tr>
+                        <th>구성요소</th>
+                        <th>전력</th>
+                    </tr>
+                    <tr>
+                        <td>ESP32</td>
+                        <td>240mA (최대)</td>
+                    </tr>
+                    <tr>
+                        <td>DHT22</td>
+                        <td>2.5mA</td>
+                    </tr>
+                    <tr>
+                        <td>미스트메이커</td>
+                        <td>2A (동작시)</td>
+                    </tr>
+                    <tr>
+                        <td>총 필요 전력</td>
+                        <td>12V / 3A 어댑터</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="api-section">
+            <h3>🔌 REST API 엔드포인트</h3>
+            
+            <h4>센서 데이터</h4>
+            <div class="api-endpoint">
+                <span class="method get">GET</span> /api/sensor/status
+                <br><small>현재 온습도 상태 조회</small>
+            </div>
+            <div class="api-endpoint">
+                <span class="method get">GET</span> /api/sensor/history?hours=24
+                <br><small>시간별 센서 데이터 히스토리</small>
+            </div>
+            
+            <h4>분무 제어</h4>
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /api/spray/manual
+                <br><small>수동 분무 실행 (duration: 초)</small>
+            </div>
+            <div class="api-endpoint">
+                <span class="method put">PUT</span> /api/spray/auto-config
+                <br><small>자동 분무 설정 (threshold, enabled)</small>
+            </div>
+            
+            <h4>스케줄</h4>
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /api/schedule/create
+                <br><small>분무 스케줄 생성</small>
+            </div>
+            <div class="api-endpoint">
+                <span class="method get">GET</span> /api/schedule/list
+                <br><small>등록된 스케줄 목록</small>
+            </div>
+        </div>
+        
+        <div class="kafka-topics">
+            <h3>📨 Kafka Topic 설계</h3>
+            
+            <div class="topic-card">
+                <div class="topic-name">sensor.telemetry</div>
+                <div>ESP32에서 전송하는 온습도 센서 데이터</div>
+                <code style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 3px; display: block; margin-top: 10px;">
+                    Key: device_id | Value: {temperature: 25.6, humidity: 72.3, timestamp: ...}
+                </code>
+            </div>
+            
+            <div class="topic-card">
+                <div class="topic-name">actuator.command</div>
+                <div>분무기 제어 명령</div>
+                <code style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 3px; display: block; margin-top: 10px;">
+                    Key: device_id | Value: {action: "SPRAY_ON", duration: 5}
+                </code>
+            </div>
+            
+            <div class="topic-card">
+                <div class="topic-name">actuator.result</div>
+                <div>분무 실행 결과</div>
+                <code style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 3px; display: block; margin-top: 10px;">
+                    Key: device_id | Value: {status: "SUCCESS", executed_at: ...}
+                </code>
+            </div>
+            
+            <div class="topic-card">
+                <div class="topic-name">alert.event</div>
+                <div>임계값 초과 등 경보 이벤트</div>
+                <code style="background: rgba(255,255,255,0.2); padding: 5px; border-radius: 3px; display: block; margin-top: 10px;">
+                    Key: enclosure_id | Value: {type: "HUMIDITY_LOW", value: 45, threshold: 60}
+                </code>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

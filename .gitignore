@@ -1,0 +1,36 @@
+# 개발외문서 폴더 제외 (PPT, 개인 메모 등)
+개발외문서/
+
+# OS 관련 파일들
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE 관련 파일들
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 임시 파일들
+*.tmp
+*.temp
+~$*
+
+# 로그 파일들
+*.log
+
+# Node.js 관련 (향후 개발 시)
+node_modules/
+npm-debug.log*
+
+# Python 관련 (향후 개발 시)
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# 기타 개발 환경 파일들
+.env.local
+.env.development
+.env.production
