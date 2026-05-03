@@ -1,0 +1,763 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚙️ 기술 상세 — Gecko Keeper</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* ── Nav ── */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.12);
+            height: 58px;
+        }
+
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.15em;
+            color: #2c3e50;
+            margin-right: auto;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            padding: 7px 18px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #636e72;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover { background: #f0f0f0; color: #2c3e50; }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            color: white;
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        /* ── Page header ── */
+        .page-header {
+            text-align: center;
+            color: white;
+            padding: 44px 20px 40px;
+        }
+
+        .page-header h1 { font-size: 2.2em; font-weight: 800; margin-bottom: 8px; }
+        .page-header p  { font-size: 1.05em; opacity: 0.75; }
+
+        /* ── Top-level tab bar ── */
+        .tab-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+
+        .tab-btn {
+            padding: 10px 28px;
+            border-radius: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.95em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { background: rgba(255, 255, 255, 0.2); }
+
+        .tab-btn.active {
+            background: white;
+            color: #2d3436;
+            border-color: white;
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ── Section card ── */
+        .section-card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 18px;
+            padding: 36px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 24px;
+        }
+
+        .section-card h2 {
+            color: #2c3e50;
+            font-size: 1.3em;
+            margin-bottom: 28px;
+            text-align: center;
+        }
+
+        /* ── Sub-tab bar (inside S/W and H/W) ── */
+        .sub-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 0;
+        }
+
+        .sub-btn {
+            padding: 9px 22px;
+            border: none;
+            background: none;
+            color: #636e72;
+            font-size: 0.9em;
+            font-weight: 700;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+        }
+
+        .sub-btn:hover { color: #2c3e50; }
+
+        .sub-btn.active {
+            color: #0984e3;
+            border-bottom-color: #0984e3;
+        }
+
+        .sub-content { display: none; }
+        .sub-content.active { display: block; }
+
+        /* ── Data flow (통합 개요) ── */
+        .flow-wrap {
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .flow {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            min-width: 700px;
+        }
+
+        .flow-node {
+            flex: 1;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            border-radius: 14px;
+            padding: 18px 14px;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(108, 92, 231, 0.3);
+            min-width: 110px;
+        }
+
+        .flow-node-icon  { font-size: 1.6em; margin-bottom: 6px; }
+        .flow-node-title { font-weight: 700; font-size: 0.9em; margin-bottom: 4px; }
+        .flow-node-sub   { font-size: 0.76em; opacity: 0.85; line-height: 1.4; }
+
+        .flow-arrow {
+            color: #636e72;
+            font-size: 1.4em;
+            padding: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .flow-note {
+            margin-top: 20px;
+            font-size: 0.85em;
+            color: #636e72;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        /* ── Kafka topics ── */
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .topic-card {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            border-radius: 12px;
+            padding: 18px;
+        }
+
+        .topic-name { font-weight: 700; font-size: 1.0em; margin-bottom: 6px; }
+        .topic-desc { font-size: 0.82em; opacity: 0.9; margin-bottom: 10px; }
+
+        .topic-code {
+            background: rgba(255, 255, 255, 0.18);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.78em;
+            line-height: 1.5;
+        }
+
+        /* ── API endpoints ── */
+        .api-group { margin-bottom: 24px; }
+
+        .api-group-title {
+            font-size: 0.78em;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #636e72;
+            margin-bottom: 10px;
+        }
+
+        .api-item {
+            background: #1e272e;
+            color: #dfe6e9;
+            border-radius: 10px;
+            padding: 13px 16px;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .method {
+            padding: 3px 9px;
+            border-radius: 5px;
+            font-size: 0.78em;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .m-get  { background: #0984e3; color: white; }
+        .m-post { background: #00b894; color: white; }
+        .m-put  { background: #fdcb6e; color: #2d3436; }
+
+        .api-desc {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.8em;
+            color: #b2bec3;
+            margin-top: 3px;
+        }
+
+        .api-item-body { flex: 1; }
+
+        /* ── HW spec tables ── */
+        .hw-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .hw-card {
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+            border: 1px solid #f0f0f0;
+        }
+
+        .hw-card-header {
+            padding: 14px 18px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.0em;
+        }
+
+        .hw-sensor    { background: linear-gradient(135deg, #0984e3, #74b9ff); }
+        .hw-mist      { background: linear-gradient(135deg, #00b894, #00cec9); }
+        .hw-mcu       { background: linear-gradient(135deg, #e17055, #fdcb6e); }
+        .hw-power     { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+
+        .hw-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .hw-table td {
+            padding: 9px 14px;
+            font-size: 0.88em;
+            border-bottom: 1px solid #f5f5f5;
+        }
+
+        .hw-table tr:last-child td { border-bottom: none; }
+
+        .hw-table td:first-child {
+            color: #636e72;
+            font-weight: 500;
+            width: 45%;
+        }
+
+        .hw-table td:last-child {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        /* ── Mist diagram ── */
+        .diagram-wrap { width: 100%; overflow-x: auto; }
+        .diagram-wrap svg { min-width: 600px; display: block; margin: 0 auto; }
+
+        /* ── H/W power flow ── */
+        .pf-wrap { overflow-x: auto; padding-bottom: 8px; }
+
+        .pf-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 660px;
+        }
+
+        .pf-box {
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-align: center;
+            color: white;
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+        }
+
+        .pf-box .pf-icon  { font-size: 1.5em; }
+        .pf-box strong    { font-size: 0.86em; }
+        .pf-box span      { font-size: 0.75em; opacity: 0.88; }
+
+        .pf-ac      { background: linear-gradient(135deg, #d63031, #e17055); }
+        .pf-adapter { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+        .pf-mist    { background: linear-gradient(135deg, #00b894, #00cec9); }
+        .pf-buck    { background: linear-gradient(135deg, #e17055, #fdcb6e); }
+        .pf-mcu     { background: linear-gradient(135deg, #0984e3, #74b9ff); }
+
+        .pf-arr { color: #636e72; font-size: 1.3em; font-weight: 700; flex-shrink: 0; }
+
+        .pf-fork {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pf-fork-branch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pf-fork-label {
+            font-size: 0.74em;
+            color: #636e72;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .pf-note {
+            margin-top: 16px;
+            font-size: 0.82em;
+            color: #636e72;
+            text-align: center;
+        }
+
+        /* relay hw card header */
+        .hw-relay { background: linear-gradient(135deg, #fd79a8, #e84393); }
+
+        /* BOM reference */
+        .bom-ref {
+            margin-top: 24px;
+            padding: 14px 20px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 0.86em;
+            color: #636e72;
+            text-align: center;
+        }
+
+        .bom-ref a { color: #0984e3; font-weight: 700; text-decoration: none; }
+        .bom-ref a:hover { text-decoration: underline; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .page-header h1 { font-size: 1.7em; }
+            .nav { padding: 0 16px; }
+            .section-card { padding: 22px 16px; }
+            .tab-btn { padding: 8px 16px; font-size: 0.85em; }
+            .sub-btn { padding: 7px 14px; font-size: 0.82em; }
+            .flow { min-width: 600px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">🦎 Gecko Keeper</a>
+        <a href="index.html"     class="nav-link">홈</a>
+        <a href="planning.html"  class="nav-link">기획</a>
+        <a href="technical.html" class="nav-link active">기술 상세</a>
+    </nav>
+
+    <div class="container">
+
+        <div class="page-header">
+            <h1>⚙️ 기술 상세</h1>
+            <p>데이터 플로우, 소프트웨어 및 하드웨어 스펙을 확인합니다</p>
+        </div>
+
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="showTab('overview')" id="btn-overview">📊 통합 개요</button>
+            <button class="tab-btn" onclick="showTab('sw')" id="btn-sw">💻 S/W</button>
+            <button class="tab-btn" onclick="showTab('hw')" id="btn-hw">🔩 H/W</button>
+        </div>
+
+        <!-- ── 통합 개요 ── -->
+        <div id="tab-overview" class="tab-content active">
+
+            <div class="section-card">
+                <h2>📊 실시간 데이터 플로우</h2>
+                <div class="flow-wrap">
+                    <div class="flow">
+
+                        <div class="flow-node">
+                            <div class="flow-node-icon">🌡️</div>
+                            <div class="flow-node-title">DHT22</div>
+                            <div class="flow-node-sub">온도 ±0.5°C<br>습도 ±2%</div>
+                        </div>
+
+                        <div class="flow-arrow">→</div>
+
+                        <div class="flow-node">
+                            <div class="flow-node-icon">📡</div>
+                            <div class="flow-node-title">ESP32</div>
+                            <div class="flow-node-sub">1초 주기<br>WiFi 전송</div>
+                        </div>
+
+                        <div class="flow-arrow">→</div>
+
+                        <div class="flow-node">
+                            <div class="flow-node-icon">⚙️</div>
+                            <div class="flow-node-title">Spring Boot</div>
+                            <div class="flow-node-sub">데이터 검증<br>& 처리</div>
+                        </div>
+
+                        <div class="flow-arrow">→</div>
+
+                        <div class="flow-node">
+                            <div class="flow-node-icon">📨</div>
+                            <div class="flow-node-title">Kafka</div>
+                            <div class="flow-node-sub">sensor<br>.telemetry</div>
+                        </div>
+
+                        <div class="flow-arrow">→</div>
+
+                        <div class="flow-node">
+                            <div class="flow-node-icon">💾</div>
+                            <div class="flow-node-title">TimescaleDB</div>
+                            <div class="flow-node-sub">시계열 저장<br>& 분석</div>
+                        </div>
+
+                    </div>
+                </div>
+                <p class="flow-note">
+                    제어 명령 역방향: React UI → Spring Boot → Kafka (actuator.command) → ESP32 → 릴레이 ON/OFF<br>
+                    Redis는 최신 센서 상태 캐싱 / 임계값 기반 자동 분무 로직은 Spring Boot 내부에서 실행
+                </p>
+            </div>
+
+        </div>
+
+        <!-- ── S/W ── -->
+        <div id="tab-sw" class="tab-content">
+
+            <div class="section-card">
+
+                <div class="sub-bar">
+                    <button class="sub-btn active" onclick="showSub('api', this)">🔌 REST API</button>
+                    <button class="sub-btn" onclick="showSub('kafka', this)">📨 Kafka Topics</button>
+                </div>
+
+                <!-- REST API -->
+                <div id="sub-api" class="sub-content active">
+
+                    <div class="api-group">
+                        <div class="api-group-title">센서 데이터</div>
+                        <div class="api-item">
+                            <span class="method m-get">GET</span>
+                            <div class="api-item-body">
+                                <div>/api/sensor/status</div>
+                                <div class="api-desc">현재 온습도 상태 조회</div>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="method m-get">GET</span>
+                            <div class="api-item-body">
+                                <div>/api/sensor/history?hours=24</div>
+                                <div class="api-desc">시간별 센서 데이터 히스토리</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="api-group">
+                        <div class="api-group-title">분무 제어</div>
+                        <div class="api-item">
+                            <span class="method m-post">POST</span>
+                            <div class="api-item-body">
+                                <div>/api/spray/manual</div>
+                                <div class="api-desc">수동 분무 실행 — body: { duration: 초 }</div>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="method m-put">PUT</span>
+                            <div class="api-item-body">
+                                <div>/api/spray/auto-config</div>
+                                <div class="api-desc">자동 분무 설정 — body: { threshold, enabled }</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="api-group">
+                        <div class="api-group-title">스케줄</div>
+                        <div class="api-item">
+                            <span class="method m-post">POST</span>
+                            <div class="api-item-body">
+                                <div>/api/schedule/create</div>
+                                <div class="api-desc">분무 스케줄 생성</div>
+                            </div>
+                        </div>
+                        <div class="api-item">
+                            <span class="method m-get">GET</span>
+                            <div class="api-item-body">
+                                <div>/api/schedule/list</div>
+                                <div class="api-desc">등록된 스케줄 목록 조회</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Kafka Topics -->
+                <div id="sub-kafka" class="sub-content">
+                    <div class="topic-grid">
+
+                        <div class="topic-card">
+                            <div class="topic-name">sensor.telemetry</div>
+                            <div class="topic-desc">ESP32 → Spring Boot 온습도 데이터</div>
+                            <div class="topic-code">Key: device_id<br>{ temperature: 25.6,<br>&nbsp;&nbsp;humidity: 72.3,<br>&nbsp;&nbsp;timestamp: ... }</div>
+                        </div>
+
+                        <div class="topic-card">
+                            <div class="topic-name">actuator.command</div>
+                            <div class="topic-desc">Spring Boot → ESP32 분무 제어 명령</div>
+                            <div class="topic-code">Key: device_id<br>{ action: "SPRAY_ON",<br>&nbsp;&nbsp;duration: 5 }</div>
+                        </div>
+
+                        <div class="topic-card">
+                            <div class="topic-name">actuator.result</div>
+                            <div class="topic-desc">ESP32 → Spring Boot 실행 결과</div>
+                            <div class="topic-code">Key: device_id<br>{ status: "SUCCESS",<br>&nbsp;&nbsp;executed_at: ... }</div>
+                        </div>
+
+                        <div class="topic-card">
+                            <div class="topic-name">alert.event</div>
+                            <div class="topic-desc">임계값 초과 등 경보 이벤트</div>
+                            <div class="topic-code">Key: enclosure_id<br>{ type: "HUMIDITY_LOW",<br>&nbsp;&nbsp;value: 45,<br>&nbsp;&nbsp;threshold: 60 }</div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── H/W ── -->
+        <div id="tab-hw" class="tab-content">
+
+            <!-- 미스트 시스템 설치 구성도 -->
+            <div class="section-card">
+                <h2>💧 미스트 시스템 설치 구성도</h2>
+                                <div class="diagram-wrap" style="text-align:center;">
+                    <img src="image.png" alt="소형 파충류 사육장 자동 분무기 설계 &amp; 연결 구성도"
+                         style="width:100%;max-width:760px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);">
+                </div>
+            </div>
+
+            <!-- 전원 흐름 -->
+            <div class="section-card">
+                <h2>⚡ 전원 공급 흐름</h2>
+                <div class="pf-wrap">
+                    <div class="pf-row">
+
+                        <div class="pf-box pf-ac">
+                            <div class="pf-icon">🔌</div>
+                            <strong>콘센트</strong>
+                            <span>220V AC</span>
+                        </div>
+                        <div class="pf-arr">→</div>
+                        <div class="pf-box pf-adapter">
+                            <div class="pf-icon">🔲</div>
+                            <strong>AC-DC 어댑터</strong>
+                            <span>12V / 3A DC</span>
+                        </div>
+                        <div class="pf-arr">→</div>
+
+                        <div class="pf-fork">
+                            <div class="pf-fork-branch">
+                                <span class="pf-fork-label">↗ 직결 (릴레이 경유)</span>
+                                <div class="pf-box pf-mist">
+                                    <div class="pf-icon">💧</div>
+                                    <strong>수중 펌프</strong>
+                                    <span>12V / 1A</span>
+                                </div>
+                            </div>
+                            <div class="pf-fork-branch">
+                                <span class="pf-fork-label">↘ 변환</span>
+                                <div class="pf-box pf-buck">
+                                    <div class="pf-icon">🔄</div>
+                                    <strong>Buck 컨버터</strong>
+                                    <span>12V → 5V / 3A</span>
+                                </div>
+                                <div class="pf-arr">→</div>
+                                <div class="pf-box pf-mcu">
+                                    <div class="pf-icon">📡</div>
+                                    <strong>ESP32 + 릴레이</strong>
+                                    <span>5V / ~270mA</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <p class="pf-note">ESP32 GPIO 신호(5V) → 릴레이 → 12V 수중 펌프 ON/OFF | 단일 콘센트로 전체 시스템 구동</p>
+            </div>
+
+            <!-- 핵심 부품 스펙 -->
+            <div class="section-card">
+                <h2>🔩 핵심 부품 스펙</h2>
+                <div class="hw-grid">
+
+                    <div class="hw-card">
+                        <div class="hw-card-header hw-mcu">📡 MCU — ESP32</div>
+                        <table class="hw-table">
+                            <tr><td>모델</td><td>ESP32-WROOM-32 DevKit</td></tr>
+                            <tr><td>WiFi</td><td>802.11 b/g/n</td></tr>
+                            <tr><td>GPIO</td><td>34개</td></tr>
+                            <tr><td>입력 전압</td><td>5V (USB 핀 경유)</td></tr>
+                            <tr><td>소비 전류</td><td>최대 240mA</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="hw-card">
+                        <div class="hw-card-header hw-sensor">🌡️ 센서 — DHT22</div>
+                        <table class="hw-table">
+                            <tr><td>온도 정확도</td><td>±0.5°C</td></tr>
+                            <tr><td>습도 정확도</td><td>±2%</td></tr>
+                            <tr><td>측정 주기</td><td>1초</td></tr>
+                            <tr><td>동작 전압</td><td>3.3V – 5V</td></tr>
+                            <tr><td>소비 전류</td><td>2.5mA</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="hw-card">
+                        <div class="hw-card-header hw-mist">💧 수중 펌프</div>
+                        <table class="hw-table">
+                            <tr><td>방식</td><td>마그네틱 임펠러</td></tr>
+                            <tr><td>입력 전압</td><td>12V DC</td></tr>
+                            <tr><td>유량</td><td>1–3 L/min</td></tr>
+                            <tr><td>최대 양정</td><td>1.5m 이상</td></tr>
+                            <tr><td>소비 전류</td><td>0.5–1A</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="hw-card">
+                        <div class="hw-card-header hw-sensor" style="background:linear-gradient(135deg,#00acc1,#26c6da);">🔧 미스팅 노즐</div>
+                        <table class="hw-table">
+                            <tr><td>방식</td><td>가압 분무 (아토마이저)</td></tr>
+                            <tr><td>오리피스</td><td>0.3–0.5mm</td></tr>
+                            <tr><td>연결</td><td>4–6mm 튜브 직결</td></tr>
+                            <tr><td>재질</td><td>황동 또는 나일론</td></tr>
+                            <tr><td>설치 위치</td><td>사육장 내부 상단</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="hw-card">
+                        <div class="hw-card-header hw-relay">🔀 릴레이 모듈</div>
+                        <table class="hw-table">
+                            <tr><td>채널</td><td>1채널</td></tr>
+                            <tr><td>제어 신호</td><td>5V (ESP32 GPIO)</td></tr>
+                            <tr><td>스위칭 용량</td><td>10A / 250VAC</td></tr>
+                            <tr><td>격리 방식</td><td>옵토커플러</td></tr>
+                            <tr><td>트리거</td><td>Active LOW</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="hw-card">
+                        <div class="hw-card-header hw-power">⚡ 전원 모듈</div>
+                        <table class="hw-table">
+                            <tr><td>AC-DC 어댑터</td><td>220V → 12V / 3A</td></tr>
+                            <tr><td>Buck 컨버터</td><td>12V → 5V / 3A (LM2596)</td></tr>
+                            <tr><td>ESP32 + 릴레이</td><td>5V / ~270mA</td></tr>
+                            <tr><td>수중 펌프</td><td>12V / 1A</td></tr>
+                            <tr><td>총 소비 전력</td><td>≒ 18W</td></tr>
+                        </table>
+                    </div>
+
+                </div>
+
+                <div class="bom-ref">
+                    📋 점핑 와이어 · 저항 · 브레드보드 · 수위 센서 등 세부 소모품 전체 목록 →
+                    <a href="hardware_bom.csv" download>hardware_bom.csv 다운로드</a>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const TABS = ['overview', 'sw', 'hw'];
+
+        function showTab(id) {
+            TABS.forEach(t => {
+                document.getElementById('tab-' + t).classList.toggle('active', t === id);
+                document.getElementById('btn-' + t).classList.toggle('active', t === id);
+            });
+            history.replaceState(null, '', '#' + id);
+        }
+
+        function showSub(id, btn) {
+            const panel = btn.closest('.section-card');
+            panel.querySelectorAll('.sub-content').forEach(el => el.classList.remove('active'));
+            panel.querySelectorAll('.sub-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('sub-' + id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // Hash-based activation
+        const hash = location.hash.replace('#', '');
+        if (TABS.includes(hash)) showTab(hash);
+    </script>
+
+</body>
+</html>

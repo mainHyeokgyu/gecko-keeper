@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦎 Gecko Keeper</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* ── Nav ── */
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
+            padding: 0 40px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.12);
+            height: 58px;
+        }
+
+        .nav-brand {
+            font-weight: 800;
+            font-size: 1.15em;
+            color: #2c3e50;
+            margin-right: auto;
+            text-decoration: none;
+        }
+
+        .nav-link {
+            padding: 7px 18px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #636e72;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover { background: #f0f0f0; color: #2c3e50; }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            text-align: center;
+            padding: 56px 20px 48px;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 2.6em;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+            line-height: 1.25;
+        }
+
+        .hero p {
+            font-size: 1.15em;
+            opacity: 0.88;
+        }
+
+        /* ── Section label ── */
+        .section-label {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.82em;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        /* ── Overview cards ── */
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+            margin-bottom: 48px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            font-size: 1.0em;
+            font-weight: 700;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 2.5px solid #667eea;
+        }
+
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 7px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.88em;
+        }
+
+        .spec-row:last-child { border-bottom: none; }
+
+        .spec-label { color: #636e72; }
+        .spec-val { color: #2c3e50; font-weight: 600; }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-size: 0.72em;
+            font-weight: 700;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .badge-ok   { background: #00b894; color: white; }
+        .badge-chk  { background: #fdcb6e; color: #2d3436; }
+        .badge-plan { background: #b2bec3; color: white; }
+
+        /* ── Nav cards (sub-page links) ── */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .nav-card {
+            background: rgba(255, 255, 255, 0.13);
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            border-radius: 20px;
+            padding: 30px;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.25s;
+        }
+
+        .nav-card:hover {
+            background: rgba(255, 255, 255, 0.22);
+            transform: translateY(-4px);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .nc-icon  { font-size: 2.2em; }
+        .nc-title { font-size: 1.3em; font-weight: 700; }
+        .nc-desc  { font-size: 0.88em; opacity: 0.8; line-height: 1.55; }
+
+        .nc-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+
+        .nc-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 11px;
+            border-radius: 10px;
+            font-size: 0.78em;
+            font-weight: 600;
+        }
+
+        .nc-arrow { margin-top: auto; text-align: right; font-size: 1.3em; opacity: 0.7; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 1.9em; }
+            .nav { padding: 0 16px; }
+            .grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">🦎 Gecko Keeper</a>
+        <a href="index.html"    class="nav-link active">홈</a>
+        <a href="planning.html" class="nav-link">기획</a>
+        <a href="technical.html" class="nav-link">기술 상세</a>
+    </nav>
+
+    <div class="container">
+
+        <div class="hero">
+            <h1>🦎 크레스티드게코<br>스마트 사육장 플랫폼</h1>
+            <p>자동 습도 제어 시스템 프로토타입</p>
+        </div>
+
+        <p class="section-label">프로젝트 개요</p>
+        <div class="grid-4">
+
+            <div class="card">
+                <h3>🎯 프로토타입 스펙</h3>
+                <div class="spec-row">
+                    <span class="spec-label">타겟 동물</span>
+                    <span class="spec-val">크레스티드게코 <span class="badge badge-ok">확정</span></span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">온도 정확도</span>
+                    <span class="spec-val">±1°C 미만 <span class="badge badge-ok">확정</span></span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">습도 정확도</span>
+                    <span class="spec-val">±3% 미만 <span class="badge badge-ok">확정</span></span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">분무 방식</span>
+                    <span class="spec-val">펌프+노즐 <span class="badge badge-ok">확정</span></span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">통신 방식</span>
+                    <span class="spec-val">WiFi 직접 <span class="badge badge-ok">확정</span></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚙️ 제어 기능</h3>
+                <div class="spec-row">
+                    <span class="spec-label">수동 제어</span>
+                    <span class="spec-val">앱에서 즉시 ON/OFF</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">자동 제어</span>
+                    <span class="spec-val">습도 임계값 기반</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">스케줄 제어</span>
+                    <span class="spec-val">시간별 자동 분무</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">모니터링</span>
+                    <span class="spec-val">실시간 온습도 표시</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🔧 기술 스택</h3>
+                <div class="spec-row">
+                    <span class="spec-label">MCU</span>
+                    <span class="spec-val">ESP32 (WiFi 내장)</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">센서</span>
+                    <span class="spec-val">DHT22</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">백엔드</span>
+                    <span class="spec-val">Spring Boot + Kafka</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">프론트엔드</span>
+                    <span class="spec-val">React</span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">데이터베이스</span>
+                    <span class="spec-val">Redis + TimescaleDB</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🚀 후속작 고려사항</h3>
+                <div class="spec-row">
+                    <span class="spec-label">통신 확장</span>
+                    <span class="spec-val">MQTT Gateway <span class="badge badge-chk">검토</span></span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">다중 지원</span>
+                    <span class="spec-val">다중 사육장 관리 <span class="badge badge-plan">계획</span></span>
+                </div>
+                <div class="spec-row">
+                    <span class="spec-label">모바일 앱</span>
+                    <span class="spec-val">네이티브 앱 개발 <span class="badge badge-plan">계획</span></span>
+                </div>
+            </div>
+
+        </div>
+
+        <p class="section-label">상세 문서</p>
+        <div class="grid-2">
+
+            <a href="planning.html" class="nav-card">
+                <div class="nc-icon">📐</div>
+                <div class="nc-title">기획</div>
+                <div class="nc-desc">시스템 레이어 아키텍처와 단계별 개발 로드맵을 확인합니다.</div>
+                <div class="nc-tags">
+                    <span class="nc-tag">시스템 아키텍처</span>
+                    <span class="nc-tag">개발 로드맵</span>
+                </div>
+                <div class="nc-arrow">→</div>
+            </a>
+
+            <a href="technical.html" class="nav-card">
+                <div class="nc-icon">⚙️</div>
+                <div class="nc-title">기술 상세</div>
+                <div class="nc-desc">데이터 플로우, 소프트웨어 및 하드웨어 상세 스펙을 확인합니다.</div>
+                <div class="nc-tags">
+                    <span class="nc-tag">통합 개요</span>
+                    <span class="nc-tag">S/W</span>
+                    <span class="nc-tag">H/W</span>
+                </div>
+                <div class="nc-arrow">→</div>
+            </a>
+
+        </div>
+    </div>
+
+</body>
+</html>

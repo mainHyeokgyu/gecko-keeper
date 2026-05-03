@@ -76,16 +76,15 @@
 ### 🎯 타겟 & 스펙 (확정)
 - **동물**: 크레스티드게코
 - **센서 정확도**: 온도 ±1°C, 습도 ±3%
-- **분무 방식**: 미스트메이커 (초음파 진동판)
+- **분무 방식**: 펌프+노즐 (소형 수중 펌프 직분사)
 - **통신**: WiFi 직접 연결
 - **제어 범위**: 수동 + 자동 + 스케줄
 
 ### 🔄 후속 검토사항
-- **분무 대안**: 펌프+노즐 방식 (성능 평가 후)
 - **통신 확장**: MQTT Gateway (다중 디바이스 시)
 
 ### 📅 마지막 업데이트
-2026-04-27 - 프로젝트 경로 이동 (Gecko_Keeper) 및 폴더 구조 정리 완료
+2026-05-03 - 분무 방식 변경 확정: 초음파 미스트메이커 → 펌프+노즐 (게코 수분 보충 요구사항 반영)
 
 ## 📂 프로젝트 구조
 ```
@@ -93,17 +92,28 @@
 ├── CLAUDE.md (이 파일)
 ├── README.md
 ├── docs/ (모든 문서 및 HTML 파일)
-│   ├── PROJECT_OVERVIEW.md
-│   ├── PROJECT_ROADMAP.md  
-│   ├── PROJECT_CONTEXT.md
-│   ├── project_visualization.html
-│   └── technical_specs.html
+│   ├── PROJECT_OVERVIEW.md      ← 전체 MSA 아키텍처 및 장기 비전
+│   ├── PROJECT_ROADMAP.md       ← 6단계 개발 로드맵 (10~16주)
+│   ├── PROJECT_CONTEXT.md       ← 프로토타입 확정 스펙 요약 (가장 최신)
+│   ├── index.html               ← 홈: 프로젝트 개요 카드 + 네비게이션
+│   ├── planning.html            ← 기획: 시스템 아키텍처 / 개발 로드맵 (서브탭)
+│   └── technical.html           ← 기술 상세: 통합 개요 / S/W / H/W (탭+서브탭)
 └── 개발외문서/ (PPT 등 외부 문서)
     └── [파충류스마트사육장플랫폼]문제정의서.pptx
 ```
 
 ## 🔍 새 세션에서 프로젝트 이해하기
-1. **먼저 읽을 파일**: `docs/PROJECT_CONTEXT.md`
-2. **시각적 확인**: `docs/project_visualization.html` 
-3. **기술 상세**: `docs/technical_specs.html`
+1. **먼저 읽을 파일**: `docs/PROJECT_CONTEXT.md` (확정 스펙 요약)
+2. **HTML 구조 파악**: 아래 멀티 페이지 구조 참고
+3. **기술 상세 참고**: `docs/PROJECT_OVERVIEW.md` (MSA 전체 설계)
 4. **현재 규칙**: `CLAUDE.md` (이 파일)
+
+## 🌐 HTML 시각화 문서 구조
+세 페이지가 공통 상단 네비게이션으로 연결된 멀티 페이지 구성.
+URL 해시로 특정 탭 직접 링크 가능 (예: `planning.html#roadmap`, `technical.html#sw`)
+
+| 파일 | 역할 | 탭 구성 |
+|---|---|---|
+| `index.html` | 홈 | 프로젝트 개요 카드 4개 + 기획/기술상세 네비카드 |
+| `planning.html` | 기획 | 시스템 아키텍처 / 개발 로드맵 |
+| `technical.html` | 기술 상세 | 통합 개요 / S/W (REST API · Kafka) / H/W (센서 · 미스트메이커 · ESP32 · 전원) |
