@@ -649,7 +649,7 @@
 
                     </div>
                 </div>
-                <p class="pf-note">ESP32 GPIO 신호(5V) → 릴레이 → 12V 다이어프램 펌프 ON/OFF | 단일 콘센트로 전체 시스템 구동</p>
+                <p class="pf-note">ESP32 GPIO 신호(3.3V) → 릴레이 → 12V 다이어프램 펌프 ON/OFF | 단일 콘센트로 전체 시스템 구동 | ⚠️ 릴레이 IN은 5V 설계 — 수령 후 동작 테스트 필수</p>
             </div>
 
             <!-- 핵심 부품 스펙 -->
@@ -694,13 +694,14 @@
                     </div>
 
                     <div class="hw-card">
-                        <div class="hw-card-header hw-sensor" style="background:linear-gradient(135deg,#00acc1,#26c6da);">🔧 분사 노즐</div>
+                        <div class="hw-card-header hw-sensor" style="background:linear-gradient(135deg,#00acc1,#26c6da);">🔧 분사 노즐 (T형 분기)</div>
                         <table class="hw-table">
-                            <tr><td>방식</td><td>직선형 물방울 분사</td></tr>
-                            <tr><td>오리피스</td><td>1.5mm</td></tr>
-                            <tr><td>연결</td><td>4mm 바브 피팅 직결</td></tr>
-                            <tr><td>재질</td><td>황동</td></tr>
-                            <tr><td>설치 위치</td><td>사육장 내부 상단</td></tr>
+                            <tr><td>구성</td><td>T커넥터 + 황동 노즐 10EA (유형B)</td></tr>
+                            <tr><td>T커넥터</td><td>4/7mm 바브 — 4mm ID 튜브 연결</td></tr>
+                            <tr><td>유량</td><td>0.2–0.7 L/min / 노즐</td></tr>
+                            <tr><td>분무 직경</td><td>1–2m</td></tr>
+                            <tr><td>재질</td><td>황동 노즐 + 플라스틱 T커넥터</td></tr>
+                            <tr><td>설치 위치</td><td>사육장 내부 상단 (2–4개 병렬)</td></tr>
                         </table>
                     </div>
 
@@ -708,7 +709,8 @@
                         <div class="hw-card-header hw-relay">🔀 릴레이 모듈</div>
                         <table class="hw-table">
                             <tr><td>채널</td><td>1채널</td></tr>
-                            <tr><td>제어 신호</td><td>5V (ESP32 GPIO)</td></tr>
+                            <tr><td>VCC</td><td>5V (Buck 컨버터)</td></tr>
+                            <tr><td>IN 신호</td><td>ESP32 GPIO 3.3V ⚠️</td></tr>
                             <tr><td>스위칭 용량</td><td>10A / 250VAC</td></tr>
                             <tr><td>격리 방식</td><td>옵토커플러</td></tr>
                             <tr><td>트리거</td><td>Active LOW</td></tr>
