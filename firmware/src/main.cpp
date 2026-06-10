@@ -25,5 +25,12 @@ void loop() {
     }
 
     Serial.printf("Temp: %.1f°C  Humidity: %.1f%%\n", temperature, humidity);
+
+    digitalWrite(RELAY_PIN, HIGH);
+    Serial.println("RELAY ON");
     delay(1000);
+
+    digitalWrite(RELAY_PIN, LOW);
+    Serial.println("RELAY OFF");
+    delay(3000);
 }

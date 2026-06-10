@@ -40,13 +40,13 @@ ESP32 기반 크레스티드게코 사육장 자동 분무 제어 펌웨어.
 
 ```powershell
 # 빌드
-pio run -e esp32dev
+& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" run -e esp32dev
 
 # 빌드 + 업로드
-pio run -e esp32dev --target upload
+& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" run -e esp32dev --target upload
 
 # 시리얼 모니터
-pio device monitor
+& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" device monitor
 ```
 
 ---
@@ -60,10 +60,10 @@ pio device monitor
 
 ```powershell
 # 릴레이 테스트
-pio test -e esp32dev -f test_relay
+& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" test -e esp32dev -f test_relay
 
 # 전체 테스트
-pio test -e esp32dev
+& "$env:USERPROFILE\.platformio\penv\Scripts\pio.exe" test -e esp32dev
 ```
 
 **릴레이 테스트 동작 순서:**
